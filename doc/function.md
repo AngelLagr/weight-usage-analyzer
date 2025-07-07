@@ -1,10 +1,10 @@
-### `compute_weight_importance(model, X, skip_last=True)`
+### `compute_weight_importance(model, dataset, skip_last=True)`
 
 Computes the importance of weights for each dense (TF/Keras) or linear (PyTorch) layer in the model.
 
 -   **Parameters**:
     -   `model` (tf.keras.Model | torch.nn.Module): The model to be analyzed.
-    -   `X` (np.ndarray | torch.Tensor): The input data used to calculate average activations.
+    -   `dataset` (np.ndarray | torch.Tensor): The input data used to calculate average activations.
     -   `skip_last` (bool): If `True`, ignores the last linear/dense layer, which is often useful as its importance is harder to interpret (no post-neuron activation).
 
 -   **Returns**:
@@ -74,10 +74,10 @@ Calculates and prints a formatted FLOPs report to the console.
 
 ---
 
-### `show(model, X)`
+### `show(model, dataset)`
 
 Generates and displays a visualization of the neural network architecture, where weight importance is represented by the thickness and color of the connections.
 
 -   **Parameters**:
     -   `model` (tf.keras.Model | torch.nn.Module): The model to visualize.
-    -   `X` (np.ndarray): The input data.
+    -   `dataset` (np.ndarray): The input data.

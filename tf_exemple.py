@@ -2,8 +2,8 @@ import core.weightusageanalyzer as wua
 import numpy as np
 import tensorflow as tf
 
-np.random.seed(42)
-X = np.random.rand(1000, 2)
+rng = np.random.default_rng(seed=42)
+X = rng.random((1000, 2))
 y = (X[:, 0] + X[:, 1] > 1).astype(int)
 
 model = tf.keras.Sequential([
@@ -26,7 +26,7 @@ for importance, weights, name in importance_list:
     report, norm_importance = wua.generate_report(importance, weights)
     print(f"\n📌 Rapport pour la couche : {name}")
     wua.print_report(report)
-    wua.plot_importance_histogram(norm_importance, report["entropie"])
+    wua.plot_importance_histogram(norm_importance, report["entropy"])
 
     
 print("\n================================\n")

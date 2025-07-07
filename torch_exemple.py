@@ -5,10 +5,10 @@ import numpy as np
 import core.weightusageanalyzer as wua 
 
 torch.manual_seed(42)
-np.random.seed(42)
+rng = np.random.default_rng(seed=42)
 
 # Dataset
-X_np = np.random.rand(1000, 2).astype(np.float32)
+X_np = rng.random((1000, 2)).astype(np.float32)
 y_np = ((X_np[:, 0] + X_np[:, 1]) > 1).astype(np.float32)
 
 X = torch.from_numpy(X_np)
