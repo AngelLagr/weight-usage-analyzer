@@ -8,14 +8,14 @@ from scipy.stats import entropy as scipy_entropy
 from ptflops import get_model_complexity_info
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-def compute_weight_importance_torch(model, X, skip_last=True):
+def compute_weight_importance_torch(model, data, skip_last=True):
     """
     Calculate the importance of weights for each linear layer in a PyTorch model.
     Importance = |weights| * average activation (per neuron).
     
     Parameters:
         model (torch.nn.Module): The PyTorch model.
-        X (Union[np.ndarray, torch.Tensor]): Input data.
+        data (Union[np.ndarray, torch.Tensor]): Input data.
         skip_last (bool): Whether to skip the last layer in the computation.
         
     Returns:
@@ -23,10 +23,10 @@ def compute_weight_importance_torch(model, X, skip_last=True):
     """
     model.eval()
     importance_list = []
-    if isinstance(X, torch.Tensor):
-        current_input = X.detach().clone().float()
+    if isinstance(data, torch.Tensor):
+        current_input = data.detach().clone().float()
     else:
-        current_input = torch.tensor(X, dtype=torch.float32)
+        current_input = torch.tensor(data, dtype=torch.float32)
     
     # Get list of linear layers
     linear_layers = [name for name, layer in model.named_modules() if isinstance(layer, torch.nn.Linear)]
@@ -48,7 +48,7 @@ def compute_weight_importance_torch(model, X, skip_last=True):
     return importance_list
 
 
-def compute_weight_importance_tf(model, X, skip_last=True):
+def compute_weight_importance_tf(model, data, skip_last=True):
     """
     Calculate the importance of weights for each dense layer in a TensorFlow/Keras model,
     ignoring the last layer if the model contains at least two layers.
@@ -56,14 +56,14 @@ def compute_weight_importance_tf(model, X, skip_last=True):
     
     Parameters:
         model (tf.keras.Model): The TensorFlow/Keras model.
-        X (np.ndarray): Input data.
+        data (np.ndarray): Input data.
         skip_last (bool): Whether to skip the last layer in the computation.
         
     Returns:
         List[Tuple[np.ndarray, np.ndarray, str]]: A list of tuples containing the importance, weights, and layer names.
     """
     importance_list = []
-    current_input = X.copy()
+    current_input = data.copy()
 
     # Get list of dense layers
     dense_layers = [layer for layer in model.layers if isinstance(layer, tf.keras.layers.Dense)]
@@ -86,13 +86,13 @@ def compute_weight_importance_tf(model, X, skip_last=True):
 
     return importance_list
 
-def compute_weight_importance(model, X, skip_last=True):
+def compute_weight_importance(model, data, skip_last=True):
     """
     Compute weight importance for a given model (TensorFlow/Keras or PyTorch).
     
     Parameters:
         model (Union[tf.keras.Model, torch.nn.Module]): The model to analyze.
-        X (np.ndarray): Input data.
+        data (np.ndarray): Input data.
         skip_last (bool): Whether to skip the last layer in the computation.
         
     Returns:
@@ -100,13 +100,13 @@ def compute_weight_importance(model, X, skip_last=True):
     """
     try:
         if isinstance(model, (tf.keras.Model, tf.keras.Sequential)):
-            return compute_weight_importance_tf(model, X,skip_last=skip_last)
+            return compute_weight_importance_tf(model, data,skip_last=skip_last)
     except ImportError:
         pass
 
     try:
         if isinstance(model, torch.nn.Module):
-            return compute_weight_importance_torch(model, X,skip_last=skip_last)
+            return compute_weight_importance_torch(model, data,skip_last=skip_last)
     except ImportError:
         pass
 
@@ -264,27 +264,27 @@ def print_flops_report(model, nb_epochs, dataset):
     """
     train_flops, infer_flops = estimate_flops(model, nb_epochs, dataset)
     nb_samples = len(dataset)
-    print(f"\n🧮 FLOPs Estimation:")
+    print("\n🧮 FLOPs Estimation:")
     print(f" - Training ({nb_epochs} epochs, {nb_samples} samples): {train_flops:,} operations")
     print(f" - Inference ({nb_samples} samples): {infer_flops:,} operations")
 
 
-def show(model, X):
+def show(model, data):
     """
     Visualize the neural network structure with weight importance.
     
     Parameters:
         model (Union[tf.keras.Model, torch.nn.Module]): The model to visualize.
-        X (np.ndarray): Input data.
+        data (np.ndarray): Input data.
     """
 
-    importance_list = compute_weight_importance(model, X, skip_last=False)    
+    importance_list = compute_weight_importance(model, data, skip_last=False)    
 
     layer_positions = []
     layer_names = []
 
     # Input layer
-    input_dim = X.shape[1]
+    input_dim = data.shape[1]
     input_layer = [f"Input {i}" for i in range(input_dim)]
     layer_positions.append(input_layer)
     layer_names.append("Input")
@@ -297,7 +297,7 @@ def show(model, X):
         layer_names.append(name)
 
     # Figure
-    fig, ax = plt.subplots(figsize=(12, 6))
+    _, ax = plt.subplots(figsize=(12, 6))
     ax.axis("off")
     spacing_x = 3
     spacing_y = 1.5
