@@ -179,7 +179,7 @@ def generate_report(importance, weights):
     importance_flat = importance.flatten()
     normalized_importance = importance_flat / np.sum(importance_flat)
     ent = compute_entropy(normalized_importance)
-    if np.isnan(ent):
+    if np.isnan(ent) or np.isinf(ent):
         ent = 0.0
     topk_90 = compute_topk_coverage(importance_flat, k=0.9)
     low_contrib = np.sum(importance_flat < 1e-2) / len(importance_flat)
