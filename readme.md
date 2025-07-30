@@ -9,7 +9,7 @@ This curiosity led to this project, an open-source Python library for detailed a
 
 ---
 
-## Why Use WeightUsageAnalyzer?
+## The goal of the lib?
 
 As ML models become more complex, their cost in terms of computation, energy, and inference time increases. However, not all weights in a neural network contribute equally to the model's performance. I wanted to find solution and train myself in answering these questions:
 
